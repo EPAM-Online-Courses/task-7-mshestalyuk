@@ -1,8 +1,10 @@
 package efs.task.reflection;
 
 import java.lang.annotation.Annotation;
-import java.util.Collection;
-import java.util.Collections;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.util.*;
 
 public class ClassInspector {
 
@@ -15,10 +17,15 @@ public class ClassInspector {
    * @param annotation szukana adnotacja
    * @return lista zawierająca tylko unikalne nazwy pól oznaczonych adnotacją
    */
-  public static Collection<String> getAnnotatedFields(final Class<?> type,
-      final Class<? extends Annotation> annotation) {
+  public static Collection<String> getAnnotatedFields(final Class<?> type, final Class<? extends Annotation> annotation) {
     //TODO usuń zawartość tej metody i umieść tutaj swoje rozwiązanie
-    return Collections.emptyList();
+    Set<String> set = new HashSet<>();
+    for (Field field : type.getDeclaredFields()) {
+      if (field.isAnnotationPresent(annotation)) {
+        set.add(field.getName());
+      }
+    }
+    return set;
   }
 
   /**
@@ -32,7 +39,18 @@ public class ClassInspector {
    */
   public static Collection<String> getAllDeclaredMethods(final Class<?> type) {
     //TODO usuń zawartość tej metody i umieść tutaj swoje rozwiązanie
-    return Collections.emptyList();
+    Set<String> set = new HashSet<>();
+
+    for (Method method : type.getDeclaredMethods()) {
+      set.add(method.getName());
+    }
+
+    for (Class inter : type.getInterfaces()) {
+      for (Method method : inter.getDeclaredMethods()) {
+        set.add(method.getName());
+      }
+    }
+    return set;
   }
 
   /**
@@ -51,6 +69,12 @@ public class ClassInspector {
    */
   public static <T> T createInstance(final Class<T> type, final Object... args) throws Exception {
     //TODO usuń zawartość tej metody i umieść tutaj swoje rozwiązanie
-    return null;
+    Class[] tmp = new Class[args.length];
+    for (int i = 0; i < args.length; i++) {
+      tmp[i] = args[i].getClass();
+    }
+    Constructor<T> constructor = type.getDeclaredConstructor(tmp);
+    constructor.setAccessible(true);
+    return constructor.newInstance(args);
   }
 }
